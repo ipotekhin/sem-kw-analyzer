@@ -22,11 +22,47 @@ The output xlsx file contains 3-4 sheets in this order:
   - Row 3: "Period: [from input file name or data if available]"
   - Row 4: "Analyzed: X keywords, Y search terms"
   - Row 5: "Campaign types: Branded (N), Non Branded (N), DSA (N)"
-  - Row 6: "Negative keywords to add: N | KWs to pause: N"
-  - Row 7: "Search terms to add as KW: N | Estimated savings: $X"
-  - Row 8: empty (spacer)
+  - Row 6: "KWs to pause: N | KWs to optimize: N"
+  - Row 7: "Negative keywords to add: N | Search terms to add as KW: N" (only if ST data present)
+  - Row 8: "Estimated savings: $X"
+  - Row 9: empty (spacer)
 
-**Block A (starting ~row 10): Negative Keywords to Add**
+**Block A (starting ~row 11): Ad Group Performance Overview**
+
+This block gives the marketer a top-level view before diving into individual keywords.
+
+| Column | Header | Width | Description |
+|---|---|---|---|
+| A | Ad Group | 30 | Ad group name |
+| B | Campaign | 30 | Campaign name |
+| C | Clicks | 10 | Total clicks |
+| D | Cost | 12 | Total spend |
+| E | Conversions | 12 | Total conversions |
+| F | CPA (or ROAS) | 12 | Aggregated metric |
+| G | Avg CPA (campaign) | 15 | Campaign benchmark for comparison |
+| H | CTR | 10 | Ad group CTR |
+| I | Category | 15 | ★ Strong / ● Average / ▲ Weak / ✖ Poor / ⚠ Needs data |
+| J | Recommendation | 40 | Scale / Maintain / Pause group / Pause specific KW / Needs data |
+
+Sort: by Category (✖ first), then by Cost (highest first).
+
+**Block B (after Block A + 2 empty rows): Keywords to Pause / Optimize**
+
+| Column | Header | Width | Description |
+|---|---|---|---|
+| A | Keyword | 30 | The keyword |
+| B | Campaign | 30 | Campaign name |
+| C | Ad Group | 25 | Ad group name |
+| D | Action | 18 | ✖ PAUSE / ▲ OPTIMIZE / ⚠ WATCH |
+| E | Cost | 12 | Total spend |
+| F | Conversions | 12 | Total conversions |
+| G | CPA or ROAS | 12 | Relevant metric |
+| H | Reason | 40 | Brief explanation |
+
+Sort: by Action (✖ PAUSE first), then by Cost (highest first).
+
+**Block C (after Block B + 2 empty rows): Negative Keywords to Add**
+**⚠ ONLY include this block if search terms data is present in the uploaded file. If only keywords were uploaded, SKIP this entire block.**
 
 Header row: dark navy background (#1F4E79), white text, Bold
 
@@ -43,7 +79,8 @@ Header row: dark navy background (#1F4E79), white text, Bold
 
 Sort: by Priority (🔴 first), then by Level (Account → Campaign → Ad Group).
 
-**Block B (after Block A + 2 empty rows): Search Terms to Add as KW**
+**Block D (after Block C + 2 empty rows): Search Terms to Add as KW**
+**⚠ ONLY include this block if search terms data is present in the uploaded file.**
 
 | Column | Header | Width | Description |
 |---|---|---|---|
@@ -56,21 +93,6 @@ Sort: by Priority (🔴 first), then by Level (Account → Campaign → Ad Group
 
 Sort: by performance (best first).
 
-**Block C (after Block B + 2 empty rows): Keywords to Pause / Optimize**
-
-| Column | Header | Width | Description |
-|---|---|---|---|
-| A | Keyword | 30 | The keyword |
-| B | Campaign | 30 | Campaign name |
-| C | Ad Group | 25 | Ad group name |
-| D | Action | 18 | ✖ PAUSE / ▲ OPTIMIZE / ⚠ WATCH |
-| E | Cost | 12 | Total spend |
-| F | Conversions | 12 | Total conversions |
-| G | CPA or ROAS | 12 | Relevant metric |
-| H | Reason | 40 | Brief explanation |
-
-Sort: by Action (✖ PAUSE first), then by Cost (highest first).
-
 Each block has a section title row (merged cells, Arial 12pt Bold, colored left border).
 
 ## Sheet 2: Keywords — Analysis
@@ -80,11 +102,10 @@ Each block has a section title row (merged cells, Arial 12pt Bold, colored left 
 **Original columns (preserved exactly as in input file):**
 All columns from the uploaded file, in their original order. No modifications to original data.
 
-**Added columns (appended to the right, separated by an empty column):**
+**Added columns (appended directly to the right of the original columns — NO empty separator column):**
 
 | Column | Header | Format | Description |
 |---|---|---|---|
-| — | (empty separator) | — | Visual separator between original and analysis |
 | +1 | Avg CTR | 0.0% | Campaign/cluster weighted average CTR |
 | +2 | Avg CPC | $#,##0.00 | Campaign/cluster weighted average CPC |
 | +3 | Avg CR | 0.0% | Campaign/cluster weighted average CR |
@@ -95,6 +116,16 @@ All columns from the uploaded file, in their original order. No modifications to
 | +8 | Comment | Text (wrap) | Detailed explanation of why this category was assigned |
 
 Only include Avg columns for metrics that exist in the input data.
+
+**CRITICAL — Number format matching rule:**
+Each "Avg" column MUST use the exact same number format as its corresponding original column:
+- Avg CTR → same format as CTR column (percentage: `0.0%`)
+- Avg CPC → same format as CPC column (currency: `$#,##0.00`)
+- Avg CR → same format as CR column (percentage: `0.0%`)
+- Avg CPA → same format as CPA column (currency: `$#,##0.00`)
+- Avg ROAS → same format as ROAS column (multiplier: `0.00`)
+
+When building the file programmatically, detect the format of each original metric column and apply the identical format to its Avg counterpart. Do NOT hardcode formats — match them from the source data.
 
 ### Conditional Formatting
 
@@ -113,11 +144,11 @@ For "Category" column:
 ### Formatting
 
 - Freeze row 1 (headers) and first 3 columns (Campaign, AdGroup, Keyword)
-- Enable auto-filters on header row
-- Number formats:
-  - CTR, CR: `0.0%`
-  - CPC, CPA, Cost, Revenue: `$#,##0.00`
-  - ROAS: `0.00`
+- **Auto-filters: apply to the ENTIRE contiguous data range** (from cell A1 to the last column with data, covering all rows). Do NOT apply auto-filter to just the header row or just the original columns — the filter must span all columns including the added Avg/Category/Action/Comment columns, so that the user can filter by any column.
+- Number formats (apply to BOTH original and Avg columns consistently):
+  - CTR, CR, Avg CTR, Avg CR: `0.0%`
+  - CPC, CPA, Cost, Revenue, Avg CPC, Avg CPA: `$#,##0.00`
+  - ROAS, Avg ROAS: `0.00`
   - Impressions, Clicks: `#,##0`
   - Conversions: `#,##0.0`
 

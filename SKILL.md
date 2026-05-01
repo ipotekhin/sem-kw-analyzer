@@ -48,7 +48,7 @@ Also classify each campaign as Branded / Non Branded / Competitor / DSA based on
 
 Read `references/benchmarks-and-thresholds.md` for formulas and clustering rules.
 
-Calculate **weighted averages** per campaign (and per cluster if needed):
+Calculate **weighted averages** at the **campaign level** (this is the PRIMARY and DEFAULT benchmark):
 
 ```
 Avg CTR  = SUM(Clicks) / SUM(Impressions)
@@ -60,9 +60,27 @@ Avg ROAS = SUM(Revenue) / SUM(Cost)
 
 Never use simple AVERAGE() across rows — it distorts results when row volumes differ.
 
-**Clustering:** If ad groups within one campaign cover fundamentally different products (e.g., phones vs refrigerators), calculate benchmarks per cluster, not per campaign. Check if StdDev(CR across groups) / Mean(CR) > 0.5 — if so, cluster. See reference file for details.
+**CRITICAL: Benchmarks are calculated per CAMPAIGN, not per ad group.** All keywords within a campaign are compared to the same campaign-level benchmark. This ensures that expensive keywords in one ad group are correctly flagged when cheaper keywords in other ad groups bring conversions at lower cost.
 
-### Step 4: Classify keywords
+**Clustering exception:** Only apply clustering when one campaign contains fundamentally different PRODUCT CATEGORIES (e.g., "Cars" and "Car Accessories" in the same campaign — these have inherently different CPA/CR). In this case, cluster by product category, NOT by ad group. Most campaigns do NOT need clustering — use campaign-level benchmarks by default.
+
+### Step 4: Evaluate ad groups (campaign-level insight)
+
+**Before classifying individual keywords**, aggregate statistics per ad group and compare ad groups to each other within each campaign. This provides campaign-level insights:
+
+For each ad group, calculate: total Clicks, Cost, Conversions, CPA (or ROAS), CTR. Then compare to the campaign benchmark.
+
+| Ad group performance | Recommendation |
+|---|---|
+| All metrics significantly better than campaign avg (>30%) | ★ Ad group performing well — consider scaling (increase budget/bids) |
+| Metrics within ±30% of campaign avg | ● Ad group is average — maintain |
+| All metrics significantly worse AND sufficient data | ✖ Consider pausing the ENTIRE ad group |
+| Most keywords in ad group are ⚠ WATCH (insufficient data) | Needs more time — do not pause |
+| One keyword drags the whole group down | Pause that specific keyword, not the group |
+
+This ad group analysis is reported on the RECAP sheet as an additional insight block, giving the marketer a full picture: should they pause the whole group, specific keywords, or specific search terms.
+
+### Step 5: Classify keywords
 
 Read `references/decision-algorithms.md` for the complete decision trees per campaign type.
 
@@ -76,11 +94,13 @@ Apply the appropriate algorithm (e-commerce / conversion / traffic) to every key
 | ⚠ | WATCH | Insufficient data or borderline — monitor closely |
 | ✖ | PAUSE | Poor performance with sufficient data — stop |
 
-The core logic for all types: compare each KW's metrics to campaign benchmarks using ±30% thresholds. Also check data sufficiency (min 10 clicks for traffic metrics, min 30 clicks + 5 conversions for conversion metrics). For KWs with zero conversions, compare Cost to Avg CPA to decide severity.
+The core logic for all types: compare each KW's metrics to **campaign-level benchmarks** (or cluster benchmarks if clustering is applied) using ±30% thresholds. Also check data sufficiency (min 10 clicks for traffic metrics, min 30 clicks + 5 conversions for conversion metrics). For KWs with zero conversions, compare Cost to Avg CPA to decide severity.
 
-### Step 5: Classify search terms
+**CRITICAL: Keywords are NEVER recommended for negation.** Keywords were intentionally added to the campaign by the advertiser. If a keyword is underperforming, the recommendation is to PAUSE it (disable), OPTIMIZE it (lower bid, improve ad/landing page), or WATCH it (gather more data). Negative keywords are ONLY generated from search terms (Step 6).
 
-Search terms are analyzed with the same algorithm as keywords (Step 4), with two critical differences:
+### Step 6: Classify search terms
+
+Search terms are analyzed with the same algorithm as keywords (Step 5), with two critical differences:
 
 1. **You cannot pause a search term** — if it's ineffective, you must add it as a negative keyword.
 2. **All search terms are analyzed**, including those already "Added" as keywords.
@@ -92,7 +112,11 @@ For each search term:
   - **Relevant but ineffective** → add the entire search term as an Exact negative.
 - If classified ★ SCALE and not yet added as KW → recommend adding (only if results are outstanding — see reference file for thresholds).
 
-### Step 6: Build negative keyword list
+**IMPORTANT: If the file contains ONLY keywords (no search terms sheet), do NOT generate negative keyword recommendations.** Negative keywords are derived exclusively from search term analysis. Without search terms data, the RECAP sheet should contain only keyword pause/optimize recommendations and ad group insights.
+
+### Step 7: Build negative keyword list
+
+**This step is ONLY executed when search terms data is present in the file.**
 
 Read `references/negative-keywords.md` for match type mechanics and best practices.
 
@@ -103,7 +127,7 @@ Key rules:
 - Choose the right level: account (shared list) for universal negatives, campaign for type-specific, ad group for group-specific.
 - Always verify: will this negative block any useful queries in other groups/campaigns?
 
-### Step 7: Generate the output file
+### Step 8: Generate the output file
 
 Read `references/output-format.md` for the complete file specification.
 
@@ -111,24 +135,26 @@ Create an xlsx file with these sheets (in this order):
 
 **Sheet 1 — "RECAP"** (opens first, most important):
 - Summary block at top: total KWs/STs analyzed, campaign types, count of actions, estimated savings.
-- Table A: Negative keywords to add (word, match type, level, campaign, reason, affected queries, priority).
-- Table B: Search terms to add as KW (term, match type, target campaign/group, justification, stats).
-- Table C: Keywords to pause/optimize (KW, campaign, action, cost, reason).
+- Block A: Ad group performance comparison (group, campaign, aggregated metrics, category, recommendation). This gives the marketer a top-level view before diving into individual keywords.
+- Block B: Keywords to pause/optimize (KW, campaign, ad group, action, cost, reason).
+- Block C: Negative keywords to add — **ONLY if search terms data is present** (word, match type, level, campaign, reason, affected queries, priority).
+- Block D: Search terms to add as KW — **ONLY if search terms data is present** (term, match type, target campaign/group, justification, stats).
 
 **Sheet 2 — "Keywords — Analysis"**:
 - All original data columns preserved.
 - Added columns: Avg CTR, Avg CPC, Avg CR, Avg CPA, Avg ROAS, Category (★/●/▲/⚠/✖), Action, Comment.
 - Conditional formatting: green (#C6EFCE) for >30% better, orange (#FDE9D9) for 15-30% worse, red (#FFC7CE) for >30% worse.
 
-**Sheet 3 — "Search Terms — Analysis"**:
+**Sheet 3 — "Search Terms — Analysis"** (only if search terms data is present):
 - Same structure + Relevance column (✅/❌/❓), Negative word, Negative match type.
 
 **Sheet 4 — "Benchmarks"** (optional, for complex accounts):
 - Weighted averages per campaign/cluster with totals.
+- Ad group aggregated performance within each campaign.
 
 Formatting: Arial 10pt, headers white-on-navy (#1F4E79), freeze top row + first 3-4 columns, auto-filters on all data sheets, proper number formats (%, currency, multiplier).
 
-### Step 8: Deliver the result
+### Step 9: Deliver the result
 
 After building the file:
 
@@ -140,6 +166,9 @@ File naming: `[ClientName]_KW_Analysis_[YYYY-MM-DD].xlsx`
 
 ## Important Rules
 
+- **Keywords are NEVER negated.** Keywords were added to the campaign intentionally. If underperforming → pause or optimize. Negative keywords are generated ONLY from search term data. If the file contains only keywords, there are NO negative keyword recommendations.
+- **Benchmarks are calculated at the CAMPAIGN level by default.** All keywords within a campaign share the same benchmark. Do NOT calculate separate benchmarks per ad group — this masks underperformance. Clustering into sub-benchmarks is ONLY justified when a campaign mixes fundamentally different product categories.
+- **Ad group performance is evaluated as a separate insight**, comparing groups to each other within the campaign. This goes on the RECAP sheet to help the marketer decide: pause the whole group, specific keywords, or specific search terms.
 - **Branded vs Non Branded vs Competitor campaigns are NEVER compared to each other.** Each has its own benchmarks.
 - **DSA campaigns have no keywords** — analyze only their search terms, with extra scrutiny on relevance.
 - **Fractional conversions are normal** (attribution models). Do not round. Treat 0.3 conversions as insufficient data.

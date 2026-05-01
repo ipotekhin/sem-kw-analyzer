@@ -1,5 +1,11 @@
 # Negative Keywords: Match Types, Rules, and Best Practices
 
+## CRITICAL: Negative keywords come from SEARCH TERMS only
+
+**Never recommend negating a keyword that the advertiser added to the campaign.** Keywords in the campaign were added intentionally. If a keyword underperforms, the correct action is to PAUSE or OPTIMIZE it — not to negate it.
+
+Negative keyword recommendations are generated EXCLUSIVELY from search term analysis. If the uploaded file contains only keywords (no search terms), do NOT produce any negative keyword recommendations.
+
 ## Core Rule
 
 **Negate the specific trigger WORD, not the entire search query phrase.**
