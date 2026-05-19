@@ -6,6 +6,23 @@
 
 Negative keyword recommendations are generated EXCLUSIVELY from search term analysis. If the uploaded file contains only keywords (no search terms), do NOT produce any negative keyword recommendations.
 
+## CRITICAL: Never negate a search term that matches an existing keyword
+
+**Before adding ANY search term as a negative keyword, check whether it matches (or closely matches) a keyword already in the same campaign.**
+
+Check for:
+- Exact match: ST text = KW text
+- Close variants: same root words in different order, ±prepositions/articles, singular/plural
+
+**If the search term matches an existing KW:**
+- Do NOT add it as a negative keyword (this would block the advertiser's own keyword by a back door).
+- Instead, check that the corresponding keyword is already classified as ✖ PAUSE or ▲ OPTIMIZE on the Keywords sheet.
+- If it's not yet flagged — add the KW to the pause/optimize list with a note: "Identified via search term analysis: ST '[term]' matches this KW but shows poor performance."
+
+**Exact negatives on search terms are ONLY valid when:**
+1. The ST is **irrelevant** to the product AND does not match any existing KW → use trigger-word Broad/Phrase negative (not Exact on the full ST).
+2. The ST is **relevant but ineffective** AND **differs from all existing KWs** in the campaign → Exact negative is appropriate.
+
 ## Core Rule
 
 **Negate the specific trigger WORD, not the entire search query phrase.**

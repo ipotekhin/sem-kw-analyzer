@@ -117,6 +117,9 @@ All columns from the uploaded file, in their original order. No modifications to
 
 Only include Avg columns for metrics that exist in the input data.
 
+**CRITICAL — CPA display rule for zero-conversion rows:**
+When Conversions = 0 for a row, the CPA column in the added analysis columns must show "—" (dash), NOT a computed number. The Comment column must use cost-based phrasing: "0 conversions, spent $X (= N× avg CPA)" — never a fake CPA. This applies to Keywords — Analysis, Search Terms — Analysis, and all RECAP blocks.
+
 **CRITICAL — Number format matching rule:**
 Each "Avg" column MUST use the exact same number format as its corresponding original column:
 - Avg CTR → same format as CTR column (percentage: `0.0%`)
