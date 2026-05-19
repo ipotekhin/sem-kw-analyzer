@@ -104,14 +104,14 @@ The skill will ask for the client's website URL first, then run the full analysi
 
 | Feature | Details |
 |---|---|
-| 🌍 **Universal** | Works with Google Ads, Microsoft Ads / Bing, and any SEM platform with standard KW/ST exports |
-| 📐 **Campaign-level benchmarks** | Weighted averages calculated per campaign — not per ad group (prevents masking underperformers) |
-| 🧮 **Best-case test** | For keywords with few conversions and high CPA — mathematically checks if optimization can recover them, or if pause is the only option |
-| ⛔ **Negative match types done right** | Understands that negative Broad/Phrase/Exact work differently from regular keywords (no synonyms, no stemming, no close variants). Adds all word forms manually |
-| 🔒 **KW protection** | Never negates a search term that matches an existing keyword — recommends pausing the KW instead |
-| 🏷️ **Smart clustering** | Only clusters when a campaign mixes truly different product categories (cars vs accessories), not just because ad groups have different CR |
-| 📋 **RECAP-first output** | The most actionable sheet opens first, designed for fast copy-paste into Google Ads Editor |
-| 0️⃣ **Honest zero-conv handling** | Never shows fake CPA when conversions = 0. Uses cost-based phrasing: "0 conv, spent $X (= N× avg CPA)" |
+| ⚡ **Minutes, not hours** | Full keyword + search term analysis that normally takes a PPC specialist 2–4 hours — done in minutes. Upload the file, get the report |
+| 📋 **Copy-paste ready output** | Negative keyword lists, pause recommendations, and ad group insights are formatted for direct copy-paste into Google Ads Editor, Microsoft Ads, or any SEM platform |
+| 🌍 **Any SEM platform** | Works with Google Ads, Microsoft Ads / Bing, and any platform that exports standard keyword or search term reports (xlsx, csv) |
+| 🔄 **Repeatable workflow** | Same consistent analysis every time — no missed keywords, no forgotten search terms. Run it weekly or monthly on fresh exports |
+| 📐 **Campaign-level benchmarks** | Weighted averages calculated per campaign, not per ad group — so underperformers can't hide behind group-level stats |
+| 👥 **Ad group insights** | See which ad groups to scale and which to kill — before diving into individual keywords |
+| ⛔ **Correct negative match types** | Understands the actual mechanics of negative Broad / Phrase / Exact (they work differently from regular keywords) — so your negatives block what they should and nothing more |
+| 🔒 **No friendly fire** | Never recommends negating a search term that matches your own keyword — prevents accidentally blocking your own traffic |
 
 ---
 
