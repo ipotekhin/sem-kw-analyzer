@@ -34,11 +34,11 @@ FOR EACH keyword/search term in an e-commerce campaign:
 │       │   → Category: ✖ PAUSE
 │       │   → Actions: pause or drastically lower bid
 │       └── Conversions < 5 (unreliable)
-│           → Run BEST-CASE TEST (see below)
-│           → If best_case_cpa > Avg CPA × 1.5 → ✖ PAUSE
-│           → If best_case_cpa ≤ Avg CPA × 1.5 → ▲ OPTIMIZE WITH CAUTION
+│           → Run BEST-CASE ROAS TEST (see below)
+│           → If best_case_roas < Avg ROAS × 0.7 → ✖ PAUSE
+│           → If best_case_roas ≥ Avg ROAS × 0.7 → ▲ OPTIMIZE WITH CAUTION
 │           → Comment for PAUSE: "Even in best-case scenario,
-│             blended CPA = $X (= Y× avg). Pause recommended."
+│             blended ROAS = X (= Y× avg). Pause recommended."
 │
 ├── SCENARIO 3: Has clicks and conversions BUT Revenue = 0
 │   (Clicks ≥ 10, Conversions ≥ 1, Revenue = 0)
@@ -256,6 +256,70 @@ best_case_cpa = ($200 + (5 - 2) × $60) / 5
 
 $76 ≤ $60 × 1.5 ($90) → ▲ OPTIMIZE
 Comment: "CPA elevated but recoverable. Lower bid, monitor."
+```
+
+## Best-Case ROAS Test (for E-commerce: < 5 conversions with ROAS < 1.0)
+
+This test determines whether a keyword/search term in an e-commerce campaign with few conversions and low ROAS can mathematically recover to a profitable level.
+
+**When to apply:** E-commerce campaigns only. Any row with 0 < Conversions < 5 AND ROAS < 1.0.
+
+**Required campaign-level metrics:**
+```
+Avg CPA = SUM(Cost) / SUM(Conversions)                  — across the campaign
+Avg Revenue per Conv = SUM(Revenue) / SUM(Conversions)   — across the campaign
+```
+
+**Formula:**
+```
+best_case_roas = (Current Revenue + (5 - Current Conv) × Avg Revenue per Conv)
+                 ÷
+                 (Current Cost + (5 - Current Conv) × Avg CPA)
+```
+
+**Logic:** We assume the remaining conversions (to reach reliability threshold of 5) will each:
+- Cost exactly the campaign average CPA (optimistic)
+- Bring exactly the campaign average revenue per conversion (optimistic)
+
+This is the most optimistic scenario. If ROAS still doesn't recover — optimization is hopeless.
+
+**Decision:**
+- If `best_case_roas < Avg ROAS × 0.7` → ✖ PAUSE
+  - Even in the best case, blended ROAS will remain >30% below campaign average.
+  - The accumulated cost is too high to recover from.
+  - Comment: "Even best-case blended ROAS = [best_case_roas] ([X]× avg). Cannot recover. Pause."
+- If `best_case_roas ≥ Avg ROAS × 0.7` → ▲ OPTIMIZE
+  - There's a mathematical chance to reach acceptable ROAS.
+  - Comment: "ROAS below target but recoverable if future conversions match campaign average. Lower bid, monitor."
+
+**Example (unrecoverable):**
+```
+KW: "premium air curtain"
+Cost = $800, Revenue = $200, Conversions = 1
+Campaign: Avg CPA = $100, Avg Revenue/Conv = $350, Avg ROAS = 3.5
+
+best_case_roas = ($200 + (5 - 1) × $350) / ($800 + (5 - 1) × $100)
+               = ($200 + $1400) / ($800 + $400)
+               = $1600 / $1200
+               = 1.33
+
+1.33 < 3.5 × 0.7 (= 2.45) → ✖ PAUSE
+Comment: "Even best-case blended ROAS = 1.33 (0.38× avg). Cannot recover. Pause."
+```
+
+**Example (recoverable):**
+```
+KW: "commercial heated air door"
+Cost = $250, Revenue = $400, Conversions = 2
+Campaign: Avg CPA = $100, Avg Revenue/Conv = $350, Avg ROAS = 3.5
+
+best_case_roas = ($400 + (5 - 2) × $350) / ($250 + (5 - 2) × $100)
+               = ($400 + $1050) / ($250 + $300)
+               = $1450 / $550
+               = 2.64
+
+2.64 ≥ 3.5 × 0.7 (= 2.45) → ▲ OPTIMIZE
+Comment: "ROAS below target but recoverable. Lower bid, monitor."
 ```
 
 ## Comment Rules for Zero-Conversion Rows

@@ -1,6 +1,6 @@
 ---
 name: sem-kw-analyzer
-version: v1.0
+version: v1.1
 author: ipotekhin
 description: "Analyze SEM keyword and search term performance data from uploaded spreadsheets (xlsx, csv). Use this skill whenever the user uploads a file containing campaign statistics from Google Ads, Microsoft Ads (Bing), or any other SEM platform — including keyword reports, search term reports, or search query reports. Trigger when the user asks to analyze keyword performance, find negative keywords, identify wasteful spend, optimize search terms, review PPC/SEM campaign data, or mentions 'search terms', 'negative keywords', 'keyword analysis', 'SQR' (search query report), 'CPA optimization', 'ROAS analysis', or any request to evaluate ad campaign keywords. This skill handles the full workflow: reading the file, calculating benchmarks, classifying every keyword/search term, generating negative keyword lists, and producing a formatted Excel report."
 ---
@@ -97,7 +97,11 @@ Apply the appropriate algorithm (e-commerce / conversion / traffic) to every key
 
 The core logic for all types: compare each KW's metrics to **campaign-level benchmarks** (or cluster benchmarks if clustering is applied) using ±30% thresholds. Also check data sufficiency (min 10 clicks for traffic metrics, min 30 clicks + 5 conversions for conversion metrics). For KWs with zero conversions, compare Cost to Avg CPA to decide severity.
 
-**Best-case test (mandatory for < 5 conversions with CPA > 2× avg):** Before assigning ▲ OPTIMIZE to a KW with few conversions and extreme CPA, run the best-case test: `best_case_cpa = (Cost + (5 - Conv) × Avg CPA) / 5`. If the result still exceeds 1.5× avg CPA — escalate to ✖ PAUSE. See `references/decision-algorithms.md` for the full formula and examples.
+**Best-case test (mandatory for < 5 conversions with extreme deviation):** Before assigning ▲ OPTIMIZE to a KW with few conversions and poor performance, run the appropriate best-case test:
+- **Conversion campaigns (CPA test):** `best_case_cpa = (Cost + (5 - Conv) × Avg CPA) / 5`. If result > Avg CPA × 1.5 → ✖ PAUSE.
+- **E-commerce campaigns (ROAS test):** `best_case_roas = (Revenue + (5 - Conv) × Avg Rev/Conv) / (Cost + (5 - Conv) × Avg CPA)`. If result < Avg ROAS × 0.7 → ✖ PAUSE.
+
+See `references/decision-algorithms.md` for full formulas, examples, and decision thresholds.
 
 **Zero-conversion comment rule:** When Conv = 0, never output a computed or fallback CPA value. Use cost-based phrasing only: "0 conversions, spent $X (= N× avg CPA)".
 
