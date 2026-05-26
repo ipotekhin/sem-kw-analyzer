@@ -4,7 +4,7 @@
 
 Upload your campaign stats → get back a formatted Excel report with every keyword and search term classified, negative keyword recommendations, and a ready-to-act RECAP sheet.
 
-`v1.0` · by [ipotekhin](https://github.com/ipotekhin) · MIT License
+`v1.1` · by [ipotekhin](https://github.com/ipotekhin) · MIT License
 
 ---
 
